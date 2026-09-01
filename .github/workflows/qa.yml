@@ -24,6 +24,9 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Restore script permissions
+        run: chmod +x scripts/*.sh
+
       - name: Install dependencies
         run: npm run install:ci
 
