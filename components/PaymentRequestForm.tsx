@@ -11,7 +11,29 @@ const MAX_URL =
   "https://max.ru/u/f9LHodD0cOLA8K6W--M2bxoxsul1kbY8OcHdpUtg4dfzPcskSNsSvtuLl0k";
 
 export function PaymentRequestForm() {
-  const [sent, setSent] = useState(false);
+  const [preparedRequest, setPreparedRequest] = useState<{
+    message: string;
+    url: string;
+  } | null>(null);
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error">(
+    "idle",
+  );
+
+  function openMessenger() {
+    if (!preparedRequest) return;
+    window.open(preparedRequest.url, "_blank", "noopener,noreferrer");
+  }
+
+  async function copyRequestText() {
+    if (!preparedRequest) return;
+
+    try {
+      await navigator.clipboard.writeText(preparedRequest.message);
+      setCopyStatus("copied");
+    } catch {
+      setCopyStatus("error");
+    }
+  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -37,8 +59,10 @@ export function PaymentRequestForm() {
       max: `${MAX_URL}?text=${encoded}`,
     };
 
-    setSent(true);
-    window.open(urls[messenger] ?? urls.whatsapp, "_blank", "noopener,noreferrer");
+    const url = urls[messenger] ?? urls.whatsapp;
+    setPreparedRequest({ message, url });
+    setCopyStatus("idle");
+    window.open(url, "_blank", "noopener,noreferrer");
   }
 
   return (
@@ -69,25 +93,26 @@ export function PaymentRequestForm() {
 
         <label className="form-field">
           <span>Страна отправителя *</span>
-          <Input name="senderCountry" placeholder="Например, Россия" required />
+          <Input name="senderCountry" placeholder="Например, Россия" maxLength={80} required />
         </label>
         <label className="form-field">
           <span>Страна получателя *</span>
-          <Input name="recipientCountry" placeholder="Укажите страну" required />
+          <Input name="recipientCountry" placeholder="Укажите страну" maxLength={80} required />
         </label>
         <label className="form-field">
           <span>Сумма *</span>
-          <Input name="amount" placeholder="Например, 50 000" required />
+          <Input name="amount" placeholder="Например, 50 000" maxLength={50} required />
         </label>
         <label className="form-field">
           <span>Валюта *</span>
-          <Input name="currency" placeholder="USD, EUR, CNY…" required />
+          <Input name="currency" placeholder="USD, EUR, CNY…" maxLength={20} required />
         </label>
         <label className="form-field form-field-wide">
           <span>Назначение платежа *</span>
           <Textarea
             name="purpose"
             placeholder="Товар, оборудование, услуги или другая задача"
+            maxLength={500}
             required
           />
         </label>
@@ -112,7 +137,13 @@ export function PaymentRequestForm() {
         </label>
         <label className="form-field">
           <span>Имя *</span>
-          <Input name="name" placeholder="Как к вам обращаться" required />
+          <Input
+            name="name"
+            placeholder="Как к вам обращаться"
+            maxLength={100}
+            autoComplete="name"
+            required
+          />
         </label>
         <label className="form-field">
           <span>Телефон *</span>
@@ -121,6 +152,8 @@ export function PaymentRequestForm() {
             type="tel"
             inputMode="tel"
             placeholder="+7 900 000-00-00"
+            maxLength={40}
+            autoComplete="tel"
             required
           />
         </label>
@@ -131,11 +164,45 @@ export function PaymentRequestForm() {
         <ArrowUpRight aria-hidden="true" />
       </Button>
 
-      {sent ? (
-        <p className="form-success" role="status">
+      {preparedRequest ? (
+        <div className="form-success">
           <CheckCircle2 aria-hidden="true" />
-          Заявка подготовлена — подтвердите отправку в открывшемся мессенджере.
-        </p>
+          <div>
+            <span className="block" role="status">
+              Заявка подготовлена. Подтвердите отправку в мессенджере.
+            </span>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
+              <Button
+                className="h-auto p-0 text-xs"
+                onClick={openMessenger}
+                size="sm"
+                type="button"
+                variant="link"
+              >
+                Открыть мессенджер ещё раз
+              </Button>
+              <Button
+                className="h-auto p-0 text-xs"
+                onClick={copyRequestText}
+                size="sm"
+                type="button"
+                variant="link"
+              >
+                Скопировать текст заявки
+              </Button>
+            </div>
+            {copyStatus === "copied" ? (
+              <span className="mt-2 block" role="status">
+                Текст заявки скопирован.
+              </span>
+            ) : null}
+            {copyStatus === "error" ? (
+              <span className="mt-2 block" role="status">
+                Не удалось скопировать текст. Попробуйте ещё раз.
+              </span>
+            ) : null}
+          </div>
+        </div>
       ) : (
         <p className="form-note">
           Нажимая кнопку, вы открываете выбранный мессенджер с подготовленной
