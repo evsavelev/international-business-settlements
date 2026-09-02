@@ -1,13 +1,12 @@
 import type { MetadataRoute } from "next";
 
-const siteUrl =
-  "https://international-business-settlements.evsavelev-region.chatgpt.site";
+const siteUrl = "https://bizraschet.ru";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: siteUrl,
-      lastModified: new Date("2026-08-31"),
+      lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 1,
     },
