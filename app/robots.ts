@@ -6,7 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap:
-      "https://international-business-settlements.evsavelev-region.chatgpt.site/sitemap.xml",
+    sitemap: "https://bizraschet.ru/sitemap.xml",
   };
 }

@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    "https://international-business-settlements.evsavelev-region.chatgpt.site",
-  ),
+  metadataBase: new URL("https://bizraschet.ru"),
   title: {
     default: "Международные расчёты для бизнеса",
     template: "%s | Международные расчёты для бизнеса",
@@ -56,6 +54,28 @@ export const metadata: Metadata = {
   },
 };
 
+const yandexMetrikaScript = `
+(function(m,e,t,r,i,k,a){
+  m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+  m[i].l=1*new Date();
+  for (var j=0; j<document.scripts.length; j++) {
+    if (document.scripts[j].src === r) return;
+  }
+  k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+})(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=112190330', 'ym');
+
+ym(112190330, 'init', {
+  ssr: true,
+  webvisor: true,
+  clickmap: true,
+  ecommerce: 'dataLayer',
+  referrer: document.referrer,
+  url: location.href,
+  accurateTrackBounce: true,
+  trackLinks: true
+});
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -63,7 +83,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru">
-      <body className="antialiased">{children}</body>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: yandexMetrikaScript }} />
+      </head>
+      <body className="antialiased">
+        {children}
+        <noscript
+          dangerouslySetInnerHTML={{
+            __html:
+              '<div><img src="https://mc.yandex.ru/watch/112190330" style="position:absolute;left:-9999px" alt="" /></div>',
+          }}
+        />
+      </body>
     </html>
   );
 }
